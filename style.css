@@ -154,6 +154,17 @@ header {
     border-bottom: 1px solid #eee;
     padding-bottom: 4px;
 }
+.local-time {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin: 4px 0;
+    background: #eef6ff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
 .match-teams {
     display: flex;
     justify-content: space-between;
