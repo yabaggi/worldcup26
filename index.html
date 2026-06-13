@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026 Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>World Cup 2026</h1>
+        <div id="search-container">
+            <input type="text" id="global-search" placeholder="Search teams, players, cities...">
+        </div>
+    </header>
+
+    <main id="app">
+        <div id="loading">Loading tournament data...</div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="#/" class="nav-item">
+            <span class="icon">🏠</span>
+            <span class="label">Home</span>
+        </a>
+        <a href="#/schedule" class="nav-item">
+            <span class="icon">📅</span>
+            <span class="label">Schedule</span>
+        </a>
+        <a href="#/groups" class="nav-item">
+            <span class="icon">📊</span>
+            <span class="label">Groups</span>
+        </a>
+        <a href="#/teams" class="nav-item">
+            <span class="icon">⚽</span>
+            <span class="label">Teams</span>
+        </a>
+        <a href="#/stadiums" class="nav-item">
+            <span class="icon">🏟️</span>
+            <span class="label">Stadiums</span>
+        </a>
+    </nav>
+
+    <script src="scripts/data.js" type="module"></script>
+    <script src="scripts/router.js" type="module"></script>
+    <script src="scripts/app.js" type="module"></script>
+</body>
+</html>
