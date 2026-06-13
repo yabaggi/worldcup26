@@ -8,36 +8,42 @@
 </head>
 <body>
     <header>
-        <h1>World Cup 2026</h1>
+        <div class="header-top">
+            <h1>World Cup 2026</h1>
+            <div id="lang-switcher">
+                <button onclick="changeLang('en')" id="btn-en">EN</button>
+                <button onclick="changeLang('ar')" id="btn-ar">عربي</button>
+            </div>
+        </div>
         <div id="search-container">
-            <input type="text" id="global-search" placeholder="Search teams, players, cities...">
+            <input type="text" id="global-search">
         </div>
     </header>
 
     <main id="app">
-        <div id="loading">Loading tournament data...</div>
+        <div id="loading">...</div>
     </main>
 
     <nav class="bottom-nav">
         <a href="#/" class="nav-item">
             <span class="icon">🏠</span>
-            <span class="label">Home</span>
+            <span class="label" id="label-home"></span>
         </a>
         <a href="#/schedule" class="nav-item">
             <span class="icon">📅</span>
-            <span class="label">Schedule</span>
+            <span class="label" id="label-schedule"></span>
         </a>
         <a href="#/groups" class="nav-item">
             <span class="icon">📊</span>
-            <span class="label">Groups</span>
+            <span class="label" id="label-groups"></span>
         </a>
         <a href="#/teams" class="nav-item">
             <span class="icon">⚽</span>
-            <span class="label">Teams</span>
+            <span class="label" id="label-teams"></span>
         </a>
         <a href="#/stadiums" class="nav-item">
             <span class="icon">🏟️</span>
-            <span class="label">Stadiums</span>
+            <span class="label" id="label-stadiums"></span>
         </a>
     </nav>
 
