@@ -1,16 +1,27 @@
-import { store, getTeam, getStadium } from './data.js';
+import { store, getTeam, getStadium, getMatchSummary } from './data.js';
 
 const routes = {
-    '/': () => `
-        <div class="hero">
-            <h2>World Cup 2026</h2>
-            <p>48 Teams. 16 Cities. 104 Matches.</p>
-        </div>
-        <h3>Next Matches</h3>
-        <div class="match-list">
-            ${store.main.matches.slice(0, 3).map(renderMatchCard).join('')}
-        </div>
-    `,
+    '/': () => {
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        
+        const todayMatches = store.main.matches.filter(m => m.date === today);
+        const upcomingMatches = store.main.matches.filter(m => m.date >= today).slice(0, 4);
+        
+        const displayMatches = todayMatches.length > 0 ? todayMatches : upcomingMatches;
+        const title = todayMatches.length > 0 ? "Today's Matches" : "Next Matches";
+
+        return `
+            <div class="hero">
+                <h2>World Cup 2026</h2>
+                <p>48 Teams. 16 Cities. 104 Matches.</p>
+            </div>
+            <h3>${title}</h3>
+            <div class="match-list">
+                ${displayMatches.map(renderMatchCard).join('')}
+            </div>
+        `;
+    },
     '/schedule': () => {
         // Group matches by round/date
         const groups = store.main.matches.reduce((acc, m) => {
@@ -60,10 +71,15 @@ function renderMatchCard(m) {
     const t1 = getTeam(m.team1);
     const t2 = getTeam(m.team2);
     const stadium = getStadium(m.ground);
-    const score = m.score ? `${m.score.ft[0]} - ${m.score.ft[1]}` : 'vs';
+    const hasScore = !!m.score;
+    const score = hasScore ? `${m.score.ft[0]} - ${m.score.ft[1]}` : 'vs';
+    const summary = hasScore ? getMatchSummary(m.date, m.team1, m.team2) : null;
+
+    const goals1 = (m.goals1 || []).map(g => `<li>${g.name} (${g.minute}')</li>`).join('');
+    const goals2 = (m.goals2 || []).map(g => `<li>${g.name} (${g.minute}')</li>`).join('');
 
     return `
-        <div class="card match-card">
+        <div class="card match-card ${hasScore ? 'finished' : ''}" data-match-id="${m.date}-${m.team1}-${m.team2}">
             <div class="match-meta">
                 <span>${m.date} | ${m.time}</span>
                 <span>${stadium.name}</span>
@@ -79,6 +95,15 @@ function renderMatchCard(m) {
                     <span class="flag">${t2.flag_icon}</span>
                 </div>
             </div>
+            ${hasScore ? `
+            <div class="match-details" style="display: none;">
+                <div class="goals-section">
+                    <ul class="goals-list">${goals1}</ul>
+                    <ul class="goals-list">${goals2}</ul>
+                </div>
+                ${summary ? `<div class="match-summary">${summary}</div>` : ''}
+            </div>
+            ` : ''}
         </div>
     `;
 }
@@ -136,6 +161,20 @@ export function initRouter() {
             nav.classList.toggle('active', (nav.getAttribute('href').slice(1) || '/') === hash);
         });
     };
+
+    // Event delegation for match card clicks
+    document.getElementById('app').addEventListener('click', (e) => {
+        const card = e.target.closest('.match-card.finished');
+        if (card) {
+            const details = card.querySelector('.match-details');
+            if (details) {
+                const isExpanded = details.style.display === 'block';
+                details.style.display = isExpanded ? 'none' : 'block';
+                card.classList.toggle('expanded', !isExpanded);
+            }
+        }
+    });
+
     window.addEventListener('hashchange', handleRoute);
     handleRoute();
 }

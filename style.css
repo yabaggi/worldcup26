@@ -106,7 +106,46 @@ header {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    transition: transform 0.1s;
+    cursor: default;
 }
+.match-card.finished {
+    cursor: pointer;
+}
+.match-card.finished:hover {
+    background-color: #f9f9f9;
+}
+.match-card.expanded {
+    border: 2px solid var(--primary-color);
+}
+.match-details {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
+    font-size: 0.9rem;
+}
+.goals-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.goals-list {
+    list-style: none;
+    font-size: 0.8rem;
+    color: #444;
+}
+.goals-list li::before {
+    content: "⚽ ";
+}
+.match-summary {
+    font-style: italic;
+    color: #555;
+    background: #fdfdfd;
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #eee;
+}
+
 .match-meta {
     font-size: 0.75rem;
     color: #666;
