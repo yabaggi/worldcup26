@@ -521,11 +521,43 @@ header {
   gap: var(--sp-2);
 }
 
+/* Stadium card image */
+.stadium-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.stadium-img-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--navy);
+  overflow: hidden;
+}
+
+.stadium-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.stadium-card:hover .stadium-img {
+  transform: scale(1.03);
+}
+
+.stadium-info {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
 .stadium-card h4 {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: var(--sp-1);
+  line-height: 1.2;
 }
 
 .stadium-card p {
@@ -534,8 +566,36 @@ header {
   line-height: 1.5;
 }
 
-.stadium-card p + p {
-  margin-top: var(--sp-1);
+/* View Location button */
+.btn-map {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--navy);
+  color: var(--text-inverse);
+  font-size: 0.825rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  width: fit-content;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 40px;
+}
+
+.btn-map:hover {
+  background: var(--navy-light);
+}
+
+.btn-map:active {
+  transform: scale(0.97);
+}
+
+.btn-map:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 /* ── Group standings ─────────────────────────── */
@@ -746,6 +806,129 @@ header {
   }
 }
 
+/* ── Top Scorers ─────────────────────────────── */
+.scorers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.scorer-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(10,22,40,.06);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-4);
+  gap: var(--sp-3);
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.scorer-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* Gold left-border for top 3 */
+.scorer-top {
+  border-left: 3px solid var(--gold);
+}
+
+[dir="rtl"] .scorer-top {
+  border-left: none;
+  border-right: 3px solid var(--gold);
+}
+
+.scorer-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.scorer-medal {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+
+.scorer-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.scorer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.scorer-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.scorer-team {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scorer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 48px;
+  text-align: center;
+}
+
+.scorer-goals {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+/* Gold number for top scorer */
+.scorer-top:first-child .scorer-goals {
+  color: var(--gold);
+}
+
+.scorer-goals-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  margin-top: var(--sp-4);
+  text-align: center;
+}
+
 /* ── Focus states (accessibility) ────────────── */
 a:focus-visible,
 button:focus-visible,
@@ -764,3 +947,4 @@ input:focus-visible {
     display: none;
   }
 }
+

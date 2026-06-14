@@ -3,6 +3,7 @@
     "home": "Home",
     "schedule": "Schedule",
     "groups": "Groups",
+    "scorers": "Scorers",
     "teams": "Teams",
     "stadiums": "Stadiums",
     "search_placeholder": "Search teams, players, cities...",
@@ -25,12 +26,18 @@
     },
     "local_time": "Local",
     "hero_title": "World Cup 2026",
-    "hero_subtitle": "48 Teams. 16 Cities. 104 Matches."
+    "hero_subtitle": "48 Teams. 16 Cities. 104 Matches.",
+    "top_scorers": "Top Scorers",
+    "scorers_goals": "goals",
+    "scorers_goal": "goal",
+    "scorers_in": "in",
+    "scorers_matches": "matches"
   },
   "ar": {
     "home": "الرئيسية",
     "schedule": "الجدول",
     "groups": "المجموعات",
+    "scorers": "الهدافون",
     "teams": "الفرق",
     "stadiums": "الملاعب",
     "search_placeholder": "ابحث عن الفرق، اللاعبين، المدن...",
@@ -53,7 +60,12 @@
     },
     "local_time": "المحلي",
     "hero_title": "كأس العالم ٢٠٢٦",
-    "hero_subtitle": "٤٨ فريقًا. ١٦ مدينة. ١٠٤ مباراة."
+    "hero_subtitle": "٤٨ فريقًا. ١٦ مدينة. ١٠٤ مباراة.",
+    "top_scorers": "الهدافون",
+    "scorers_goals": "أهداف",
+    "scorers_goal": "هدف",
+    "scorers_in": "في",
+    "scorers_matches": "مباريات"
   },
   "data_translations": {
     "Mexico": "المكسيك",
@@ -74,3 +86,4 @@
     "Matchday 1": "الجولة الأولى"
   }
 }
+
