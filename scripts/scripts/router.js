@@ -25,36 +25,151 @@ const routes = {
     },
 
     '/schedule': () => {
-        const groups = store.main.matches.reduce((acc, m) => {
+        const fullHash  = window.location.hash.slice(1);
+        const urlParams = new URLSearchParams(fullHash.includes('?') ? fullHash.split('?')[1] : '');
+        const filter    = urlParams.get('filter') || 'all';
+
+        let filteredMatches = store.main.matches;
+        if (filter === 'played') {
+            filteredMatches = filteredMatches.filter(m => !!m.score);
+        } else if (filter === 'coming') {
+            filteredMatches = filteredMatches.filter(m => !m.score);
+        }
+
+        const groups = filteredMatches.reduce((acc, m) => {
             const key = m.round;
             if (!acc[key]) acc[key] = [];
             acc[key].push(m);
             return acc;
         }, {});
 
-        return `<h2>${t('schedule')}</h2>` + Object.entries(groups).map(([round, matches]) => `
+        const filterBar = `
+            <div class="filter-bar">
+                <button class="btn-filter ${filter === 'all' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=all'">${t('filter_all')}</button>
+                <button class="btn-filter ${filter === 'played' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=played'">${t('filter_played')}</button>
+                <button class="btn-filter ${filter === 'coming' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=coming'">${t('filter_coming')}</button>
+            </div>
+        `;
+
+        const content = Object.entries(groups).map(([round, matches]) => `
             <div class="round-section">
                 <h3 class="round-title">${td(round)}</h3>
                 <div class="match-list">${matches.map(renderMatchCard).join('')}</div>
             </div>
         `).join('');
+
+        return `<h2>${t('schedule')}</h2>` + filterBar + (content || `<p class="empty-state">${t('no_results')} —</p>`);
     },
 
     '/groups': () =>
         `<h2>${t('groups')}</h2>` + store.groups.groups.map(renderGroupTable).join(''),
 
+    '/scorers': () => {
+        // Aggregate goals from goals1 / goals2 across all finished matches
+        const scorerMap = {};
+
+        store.main.matches.forEach(m => {
+            if (!m.score) return;
+
+            const addGoals = (goalsList, teamName) => {
+                (goalsList || []).forEach(g => {
+                    if (!g.name) return;
+                    if (!scorerMap[g.name]) {
+                        scorerMap[g.name] = { name: g.name, team: teamName, goals: 0, matchSet: new Set() };
+                    }
+                    scorerMap[g.name].goals++;
+                    scorerMap[g.name].matchSet.add(`${m.date}-${m.team1}-${m.team2}`);
+                });
+            };
+
+            addGoals(m.goals1, m.team1);
+            addGoals(m.goals2, m.team2);
+        });
+
+        const scorers = Object.values(scorerMap)
+            .map(s => ({ ...s, matchCount: s.matchSet.size }))
+            .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name));
+
+        if (scorers.length === 0) {
+            return `<h2>${t('top_scorers')}</h2><p class="empty-state">${t('no_results')} —</p>`;
+        }
+
+        // Assign ranks (tied players share same rank number)
+        let currentRank = 1;
+        const ranked = scorers.map((s, i) => {
+            if (i > 0 && s.goals < scorers[i - 1].goals) currentRank = i + 1;
+            return { ...s, rank: currentRank };
+        });
+
+        return `
+            <h2>${t('top_scorers')}</h2>
+            <div class="scorers-list">
+                ${ranked.map(s => renderScorerCard(s)).join('')}
+            </div>
+        `;
+    },
+
     '/teams': () => `
         <h2>${t('teams')}</h2>
         <div class="team-grid">
             ${store.teams.map(tm => `
-                <div class="team-card">
-                    <span class="flag">${tm.flag_icon}</span>
-                    <span class="name">${td(tm.name)}</span>
-                    <span class="code">${tm.fifa_code}</span>
-                </div>
+                <a href="#/teams/${tm.fifa_code}" class="team-card-link">
+                    <div class="team-card">
+                        <span class="flag">${tm.flag_icon}</span>
+                        <span class="name">${td(tm.name)}</span>
+                        <span class="code">${tm.fifa_code}</span>
+                    </div>
+                </a>
             `).join('')}
         </div>
     `,
+
+    '/teams/': () => {
+        const fullHash = window.location.hash.slice(1);
+        const code = fullHash.split('/').pop();
+        const team = store.teams.find(t => t.fifa_code === code);
+        const squad = store.squads.find(s => s.fifa_code === code);
+
+        if (!team || !squad) return `<h2>${t('teams')}</h2><p>${t('no_results')}</p>`;
+
+        return `
+            <div class="squad-header">
+                <a href="#/teams" class="btn-back">← ${t('teams')}</a>
+                <h2>${team.flag_icon} ${td(team.name)}</h2>
+            </div>
+            <div class="squad-list">
+                <table class="squad-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>${t('pos')}</th>
+                            <th>${t('player')}</th>
+                            <th>${t('club')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${squad.players.map(p => `
+                            <tr>
+                                <td class="player-num">${p.number}</td>
+                                <td class="player-pos">${p.pos}</td>
+                                <td class="player-name">
+                                    <div class="name-main">${p.name}</div>
+                                    <div class="player-dob">${p.date_of_birth}</div>
+                                </td>
+                                <td class="player-club">
+                                    <div class="club-name">${p.club.name}</div>
+                                    <div class="club-country">${p.club.country}</div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    },
 
     '/stadiums': () => `
         <h2>${t('stadiums')}</h2>
@@ -86,11 +201,13 @@ const routes = {
                 <h3>${t('teams')}</h3>
                 <div class="team-grid">
                     ${filteredTeams.map(tm => `
-                        <div class="team-card">
-                            <span class="flag">${tm.flag_icon}</span>
-                            <span class="name">${td(tm.name)}</span>
-                            <span class="code">${tm.fifa_code}</span>
-                        </div>
+                        <a href="#/teams/${tm.fifa_code}" class="team-card-link">
+                            <div class="team-card">
+                                <span class="flag">${tm.flag_icon}</span>
+                                <span class="name">${td(tm.name)}</span>
+                                <span class="code">${tm.fifa_code}</span>
+                            </div>
+                        </a>
                     `).join('')}
                 </div>
             ` : ''}
@@ -157,6 +274,38 @@ function renderStadiumCard(s) {
                         🗺️ View Location
                     </a>
                 ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+/* ── Scorer card ──────────────────────────────────────────────────── */
+function renderScorerCard(s) {
+    const teamObj   = getTeam(s.team);
+    const goalsWord = s.goals === 1 ? t('scorers_goal') : t('scorers_goals');
+    const isTopThree = s.rank <= 3;
+
+    // Medal for top 3
+    const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    const rankDisplay = medals[s.rank]
+        ? `<span class="scorer-medal">${medals[s.rank]}</span>`
+        : `<span class="scorer-rank">#${s.rank}</span>`;
+
+    // Goal bar: width relative to top scorer's count (passed via dataset)
+    const barPct = Math.round((s.goals / s.goals) * 100); // always 100% for self; parent sets max
+
+    return `
+        <div class="scorer-card ${isTopThree ? 'scorer-top' : ''}" data-goals="${s.goals}">
+            <div class="scorer-left">
+                ${rankDisplay}
+                <div class="scorer-info">
+                    <span class="scorer-name">${s.name}</span>
+                    <span class="scorer-team">${teamObj.flag_icon} ${td(s.team)}</span>
+                </div>
+            </div>
+            <div class="scorer-right">
+                <span class="scorer-goals">${s.goals}</span>
+                <span class="scorer-goals-label">${goalsWord}</span>
             </div>
         </div>
     `;
@@ -259,14 +408,28 @@ export function initRouter() {
     const handleRoute = () => {
         const fullHash  = window.location.hash.slice(1) || '/';
         const routePath = fullHash.split('?')[0];
-        const viewFunc  = routes[routePath] || routes['/'];
+        
+        // Find matching route - support exact match or dynamic prefix
+        let viewFunc = routes[routePath];
+        if (!viewFunc) {
+            // Find longest matching prefix route that ends with /
+            const dynamicRoute = Object.keys(routes)
+                .filter(r => r.length > 1 && r.endsWith('/'))
+                .find(r => routePath.startsWith(r));
+            if (dynamicRoute) viewFunc = routes[dynamicRoute];
+        }
+        
+        if (!viewFunc) viewFunc = routes['/'];
 
         document.getElementById('app').innerHTML = viewFunc();
         window.scrollTo(0, 0);
 
         document.querySelectorAll('.nav-item').forEach(nav => {
             const navHref = nav.getAttribute('href').slice(1) || '/';
-            nav.classList.toggle('active', navHref === routePath);
+            const isActive = navHref === '/' 
+                ? routePath === '/' 
+                : routePath.startsWith(navHref);
+            nav.classList.toggle('active', isActive);
         });
     };
 

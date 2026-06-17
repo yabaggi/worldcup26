@@ -439,6 +439,42 @@ header {
   border-right: 3px solid var(--gold);
 }
 
+/* ── Filter Bar ───────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0;
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+  -webkit-overflow-scrolling: touch;
+}
+
+.btn-filter {
+  background: var(--surface);
+  border: 1px solid rgba(10, 22, 40, .12);
+  color: var(--text-secondary);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-pill);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  min-height: 38px;
+}
+
+.btn-filter.active {
+  background: var(--navy);
+  color: var(--text-inverse);
+  border-color: var(--navy);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-filter:hover:not(.active) {
+  background: var(--bg);
+  border-color: rgba(10, 22, 40, .2);
+}
+
 /* ── Schedule round titles ───────────────────── */
 .round-section {
   margin-bottom: var(--sp-2);
@@ -512,6 +548,95 @@ header {
   color: var(--text-muted);
   font-weight: 600;
   letter-spacing: 0.06em;
+}
+
+/* ── Team card link ───────────────────────────── */
+.team-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* ── Squad View ─────────────────────────────────── */
+.squad-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  color: var(--navy-light);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  gap: var(--sp-1);
+}
+
+.squad-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  font-size: 0.875rem;
+}
+
+.squad-table th {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  text-align: left;
+  padding: var(--sp-3) var(--sp-2);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--bg);
+}
+
+[dir="rtl"] .squad-table th {
+  text-align: right;
+}
+
+.squad-table td {
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid var(--bg);
+  vertical-align: middle;
+}
+
+.player-num {
+  font-weight: 700;
+  color: var(--navy);
+  width: 30px;
+}
+
+.player-pos {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.player-name .name-main {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.player-dob {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.player-club .club-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.player-club .club-country {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* ── Stadiums ────────────────────────────────── */

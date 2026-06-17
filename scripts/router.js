@@ -25,19 +25,43 @@ const routes = {
     },
 
     '/schedule': () => {
-        const groups = store.main.matches.reduce((acc, m) => {
+        const fullHash  = window.location.hash.slice(1);
+        const urlParams = new URLSearchParams(fullHash.includes('?') ? fullHash.split('?')[1] : '');
+        const filter    = urlParams.get('filter') || 'all';
+
+        let filteredMatches = store.main.matches;
+        if (filter === 'played') {
+            filteredMatches = filteredMatches.filter(m => !!m.score);
+        } else if (filter === 'coming') {
+            filteredMatches = filteredMatches.filter(m => !m.score);
+        }
+
+        const groups = filteredMatches.reduce((acc, m) => {
             const key = m.round;
             if (!acc[key]) acc[key] = [];
             acc[key].push(m);
             return acc;
         }, {});
 
-        return `<h2>${t('schedule')}</h2>` + Object.entries(groups).map(([round, matches]) => `
+        const filterBar = `
+            <div class="filter-bar">
+                <button class="btn-filter ${filter === 'all' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=all'">${t('filter_all')}</button>
+                <button class="btn-filter ${filter === 'played' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=played'">${t('filter_played')}</button>
+                <button class="btn-filter ${filter === 'coming' ? 'active' : ''}" 
+                        onclick="location.hash='#/schedule?filter=coming'">${t('filter_coming')}</button>
+            </div>
+        `;
+
+        const content = Object.entries(groups).map(([round, matches]) => `
             <div class="round-section">
                 <h3 class="round-title">${td(round)}</h3>
                 <div class="match-list">${matches.map(renderMatchCard).join('')}</div>
             </div>
         `).join('');
+
+        return `<h2>${t('schedule')}</h2>` + filterBar + (content || `<p class="empty-state">${t('no_results')} —</p>`);
     },
 
     '/groups': () =>
