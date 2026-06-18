@@ -116,14 +116,60 @@ const routes = {
         <h2>${t('teams')}</h2>
         <div class="team-grid">
             ${store.teams.map(tm => `
-                <div class="team-card">
-                    <span class="flag">${tm.flag_icon}</span>
-                    <span class="name">${td(tm.name)}</span>
-                    <span class="code">${tm.fifa_code}</span>
-                </div>
+                <a href="#/teams/${tm.fifa_code}" class="team-card-link">
+                    <div class="team-card">
+                        <span class="flag">${tm.flag_icon}</span>
+                        <span class="name">${td(tm.name)}</span>
+                        <span class="code">${tm.fifa_code}</span>
+                    </div>
+                </a>
             `).join('')}
         </div>
     `,
+
+    '/teams/': () => {
+        const fullHash = window.location.hash.slice(1);
+        const code = fullHash.split('/').pop();
+        const team = store.teams.find(t => t.fifa_code === code);
+        const squad = store.squads.find(s => s.fifa_code === code);
+
+        if (!team || !squad) return `<h2>${t('teams')}</h2><p>${t('no_results')}</p>`;
+
+        return `
+            <div class="squad-header">
+                <a href="#/teams" class="btn-back">← ${t('teams')}</a>
+                <h2>${team.flag_icon} ${td(team.name)}</h2>
+            </div>
+            <div class="squad-list">
+                <table class="squad-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>${t('pos')}</th>
+                            <th>${t('player')}</th>
+                            <th>${t('club')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${squad.players.map(p => `
+                            <tr>
+                                <td class="player-num">${p.number}</td>
+                                <td class="player-pos">${p.pos}</td>
+                                <td class="player-name">
+                                    <div class="name-main">${p.name}</div>
+                                    <div class="player-dob">${p.date_of_birth}</div>
+                                </td>
+                                <td class="player-club">
+                                    <div class="club-name">${p.club.name}</div>
+                                    <div class="club-country">${p.club.country}</div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    },
 
     '/stadiums': () => `
         <h2>${t('stadiums')}</h2>
@@ -155,11 +201,13 @@ const routes = {
                 <h3>${t('teams')}</h3>
                 <div class="team-grid">
                     ${filteredTeams.map(tm => `
-                        <div class="team-card">
-                            <span class="flag">${tm.flag_icon}</span>
-                            <span class="name">${td(tm.name)}</span>
-                            <span class="code">${tm.fifa_code}</span>
-                        </div>
+                        <a href="#/teams/${tm.fifa_code}" class="team-card-link">
+                            <div class="team-card">
+                                <span class="flag">${tm.flag_icon}</span>
+                                <span class="name">${td(tm.name)}</span>
+                                <span class="code">${tm.fifa_code}</span>
+                            </div>
+                        </a>
                     `).join('')}
                 </div>
             ` : ''}
@@ -360,14 +408,28 @@ export function initRouter() {
     const handleRoute = () => {
         const fullHash  = window.location.hash.slice(1) || '/';
         const routePath = fullHash.split('?')[0];
-        const viewFunc  = routes[routePath] || routes['/'];
+        
+        // Find matching route - support exact match or dynamic prefix
+        let viewFunc = routes[routePath];
+        if (!viewFunc) {
+            // Find longest matching prefix route that ends with /
+            const dynamicRoute = Object.keys(routes)
+                .filter(r => r.length > 1 && r.endsWith('/'))
+                .find(r => routePath.startsWith(r));
+            if (dynamicRoute) viewFunc = routes[dynamicRoute];
+        }
+        
+        if (!viewFunc) viewFunc = routes['/'];
 
         document.getElementById('app').innerHTML = viewFunc();
         window.scrollTo(0, 0);
 
         document.querySelectorAll('.nav-item').forEach(nav => {
             const navHref = nav.getAttribute('href').slice(1) || '/';
-            nav.classList.toggle('active', navHref === routePath);
+            const isActive = navHref === '/' 
+                ? routePath === '/' 
+                : routePath.startsWith(navHref);
+            nav.classList.toggle('active', isActive);
         });
     };
 
